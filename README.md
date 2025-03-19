@@ -58,3 +58,20 @@ fn handle_connection(mut stream: TcpStream) {
 ```
 
 ![404-html](images/commit3.png)
+
+> Milestone 4
+
+Penggunaan satu thread ini, meskipun sederhana, dapat menimbulkan masalah saat banyak pengguna mengakses server secara bersamaan. Karena server hanya memiliki satu thread yang menangani semua permintaan, ketika ada banyak pengguna yang meminta akses ke server, setiap permintaan akan diproses secara berurutan. Artinya, jika satu pengguna mengakses path yang menyebabkan server menunggu, server akan "terblokir" dan tidak dapat menangani permintaan lainnya sampai permintaan tersebut selesai. Ini dapat menyebabkan kinerja yang buruk dan waktu respons yang sangat lama bagi pengguna lain.
+
+```rust
+...
+    let (status_line, filename) = match &request_line[..] { 
+        "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"), 
+        "GET /sleep HTTP/1.1" => { 
+            thread::sleep(Duration::from_secs(10)); 
+            ("HTTP/1.1 200 OK", "hello.html") 
+        } 
+        _ => ("HTTP/1.1 404 NOT FOUND", "404.html"), 
+    }; 
+...
+```
